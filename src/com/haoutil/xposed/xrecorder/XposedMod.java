@@ -2,6 +2,8 @@ package com.haoutil.xposed.xrecorder;
 
 import java.lang.reflect.Field;
 
+import android.os.Environment;
+
 import com.android.internal.telephony.Call;
 import com.android.internal.telephony.CallManager;
 import com.android.internal.telephony.CallerInfo;
@@ -15,6 +17,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 public class XposedMod implements IXposedHookLoadPackage {
 	private Field mApp, mCM, mCallRecorder;
 	private String phoneName, phoneNumber;
+	private Call.State previousState;
 	
 	@Override
 	public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
@@ -46,13 +49,22 @@ public class XposedMod implements IXposedHookLoadPackage {
 				CallManager cm = (CallManager) mCM.get(param.thisObject);
 				Call.State state = cm.getActiveFgCallState();
 				if (state == Call.State.ACTIVE) {
-					XposedHelpers.callMethod(callRecorder, "start");
-				} else if (state == Call.State.ALERTING || state == Call.State.INCOMING || state == Call.State.WAITING) {
 					CallerInfo callerInfo = (CallerInfo) XposedHelpers.callMethod(param.thisObject, "getCallerInfoFromConnection",
 							XposedHelpers.callMethod(param.thisObject, "getConnectionFromCall", cm.getActiveFgCall()));
+					
 					phoneName = callerInfo.name;
 					phoneNumber = callerInfo.phoneNumber.startsWith("sip:") ? callerInfo.phoneNumber.substring(4) : callerInfo.phoneNumber;
+					
+					if (previousState == Call.State.ALERTING) {
+						XposedHelpers.callMethod(callRecorder, "setSaveDirectory", Environment.getExternalStorageDirectory().getPath() + "/recorder/outgoing");
+					} else {
+						XposedHelpers.callMethod(callRecorder, "setSaveDirectory", Environment.getExternalStorageDirectory().getPath() + "/recorder/incoming");
+					}
+					
+					XposedHelpers.callMethod(callRecorder, "start");
 				}
+				
+				previousState = state;
 			}
 		});
 	}
@@ -63,7 +75,7 @@ public class XposedMod implements IXposedHookLoadPackage {
 			protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 				String result = ((String) param.getResult()).replaceAll("-", "");
 				if (phoneNumber != null && !"".equals(phoneNumber)) {
-					result = phoneNumber + "_" + result;
+					result = phoneNumber.replaceAll(" ", "") + "_" + result;
 				}
 				if (phoneName != null && !"".equals(phoneName)) {
 					result = phoneName + "_" + result;
