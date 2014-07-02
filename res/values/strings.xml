@@ -1,5 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">XRecorder</string>
+    <string name="menu_switcher">Switcher</string>
+    <string name="enable_auto_call_recording_title">Enable auto call recording</string>
+    <string name="enable_auto_call_recording_sum">Automatically record outgoing/incoming calls when picked up.</string>
+    <string name="enable_outgoing_call_recording_title">Record outgoing call</string>
+    <string name="enable_outgoing_call_recording_sum">Automatically record outgoing calls.</string>
+    <string name="enable_incoming_call_recording_title">Record incoming call</string>
+    <string name="enable_incoming_call_recording_sum">Automatically record incoming calls.</string>
+    <string name="menu_file">Audio file settings</string>
+    <string name="file_path_title">File path</string>
+    <string name="file_path_sum">The folder path which audio files placed.</string>
+    <string name="file_path_note">Default value: </string>
+    <string name="file_format_title">File format</string>
+    <string name="file_format_sum">Format of audio files.</string>
+    <string name="file_format_note">Default value: nn_pp_yyyyMMddHHmmss\nFormat:\nnn caller name\npp phone number\nyyyy year\nMM month\ndd day\nHH hour\nmm minute\nss second</string>
+    <string name="optimize_display_caller_name_title">Optimized display caller name</string>
+    <string name="optimize_display_caller_name_sum">Hide caller name when caller name is unkonwn.</string>
+    <string name="menu_about">ABOUT</string>
+    <string name="app_info_title">XRecorder</string>
 
 </resources>

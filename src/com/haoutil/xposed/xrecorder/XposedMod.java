@@ -2,26 +2,40 @@ package com.haoutil.xposed.xrecorder;
 
 import java.lang.reflect.Field;
 
-import android.os.Environment;
-
 import com.android.internal.telephony.Call;
 import com.android.internal.telephony.CallManager;
 import com.android.internal.telephony.CallerInfo;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
-public class XposedMod implements IXposedHookLoadPackage {
+public class XposedMod implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 	private final static String TAG = "XRecorder";
+	
+	private XSharedPreferences pref;
 	
 	private Field mApp, mCM, mCallRecorder;
 	private Object callRecorder;
 	private CallManager cm;
-	private String phoneName, phoneNumber;
+	private String callerName, phoneNumber;
 	private Call.State previousState;
+	
+	private boolean isEnableRecord;
+	private boolean isEnableRecordOutgoing;
+	private boolean isEnableRecordIncoming;
+	private boolean isOptimizeDisplayCallerName;
+	private String saveDirectory;
+	private String fielFormat;
+
+	@Override
+	public void initZygote(StartupParam startupParam) throws Throwable {
+		pref = new XSharedPreferences(XposedMod.class.getPackage().getName());
+	}
 	
 	@Override
 	public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
@@ -53,18 +67,40 @@ public class XposedMod implements IXposedHookLoadPackage {
 			}
 		});
 		
+		XposedBridge.hookAllMethods(clazz, "onResume", new XC_MethodHook() {
+			@Override
+			protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+				pref.reload();
+				
+				isEnableRecord = pref.getBoolean("pref_enable_auto_call_recording", true);
+				isEnableRecordOutgoing = pref.getBoolean("pref_enable_outgoing_call_recording", true);
+				isEnableRecordIncoming = pref.getBoolean("pref_enable_incoming_call_recording", true);
+				isOptimizeDisplayCallerName = pref.getBoolean("pref_optimize_display_caller_name", true);
+				saveDirectory = pref.getString("pref_file_path", Common.DEFAULT_SAVEDIRECTORY);
+				fielFormat = pref.getString("pref_file_format", Common.DEFAULT_FIELFORMAT);
+			}
+		});
+		
 		XposedBridge.hookAllMethods(clazz, "onPhoneStateChanged", new XC_MethodHook() {
 			@Override
 			protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-				if (cm == null || callRecorder == null || (Boolean) XposedHelpers.callMethod(callRecorder, "isRecording")) {
+				if (!isEnableRecord) {
+					return;
+				}
+				
+				if (cm == null || callRecorder == null) {
 					return;
 				}
 
 				if (cm.getActiveFgCallState() == Call.State.ACTIVE) {
+					if ((Boolean) XposedHelpers.callMethod(callRecorder, "isRecording")) {
+						return;
+					}
+					
 					try {
 						CallerInfo callerInfo = (CallerInfo) XposedHelpers.callMethod(param.thisObject, "getCallerInfoFromConnection",
 								XposedHelpers.callMethod(param.thisObject, "getConnectionFromCall", cm.getActiveFgCall()));
-						phoneName = callerInfo.name;
+						callerName = callerInfo.name;
 						phoneNumber = callerInfo.phoneNumber.startsWith("sip:") ? callerInfo.phoneNumber.substring(4) : callerInfo.phoneNumber;
 					} catch (Exception e) {
 						XposedBridge.log(TAG + " can not get caller info.");
@@ -72,9 +108,17 @@ public class XposedMod implements IXposedHookLoadPackage {
 					
 					try {
 						if (previousState == Call.State.ALERTING) {
-							XposedHelpers.callMethod(callRecorder, "setSaveDirectory", Environment.getExternalStorageDirectory().getPath() + "/recorder/outgoing");
+							if (!isEnableRecordOutgoing) {
+								return;
+							}
+							
+							XposedHelpers.callMethod(callRecorder, "setSaveDirectory", saveDirectory + "/outgoing");
 						} else {
-							XposedHelpers.callMethod(callRecorder, "setSaveDirectory", Environment.getExternalStorageDirectory().getPath() + "/recorder/incoming");
+							if (!isEnableRecordIncoming) {
+								return;
+							}
+							
+							XposedHelpers.callMethod(callRecorder, "setSaveDirectory", saveDirectory + "/incoming");
 						}
 						
 						XposedHelpers.callMethod(callRecorder, "start");
@@ -92,14 +136,26 @@ public class XposedMod implements IXposedHookLoadPackage {
 		XposedBridge.hookAllMethods(clazz, "generateFilename", new XC_MethodHook() {
 			@Override
 			protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-				String result = ((String) param.getResult()).replaceAll("-", "");
-				if (phoneNumber != null && !"".equals(phoneNumber)) {
-					result = phoneNumber.replaceAll(" ", "") + "_" + result;
+				String[] results = ((String) param.getResult()).replace(".amr", "").split("-");
+				String fileName = fielFormat;
+				if (callerName == null || "".equals(callerName)) {
+					if (isOptimizeDisplayCallerName) {
+						fileName = fileName.replaceAll("nn((?!pp|yyyy|MM|dd|HH|mm|ss).)*", "");
+					} else {
+						callerName = "unkown caller";
+					}
 				}
-				if (phoneName != null && !"".equals(phoneName)) {
-					result = phoneName + "_" + result;
-				}
-				param.setResult(result);
+				fileName = fileName
+						.replaceAll("nn", callerName)
+						.replaceAll("pp", phoneNumber.replaceAll(" ", ""))
+						.replaceAll("yyyy", results[0])
+						.replaceAll("MM", results[1])
+						.replaceAll("dd", results[2])
+						.replaceAll("HH", results[3])
+						.replaceAll("mm", results[4])
+						.replaceAll("ss", results[5]);
+				
+				param.setResult(fileName + ".amr");
 			}
 		});
 	}
