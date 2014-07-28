@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">XRecorder</string>
+    <string name="menu_switcher">スイッチ</string>
+    <string name="enable_auto_call_recording_title">自動通話録音の有効化</string>
+    <string name="enable_auto_call_recording_sum">通話開始時に自動的に録音を始めます。</string>
+    <string name="enable_outgoing_call_recording_title">発信時に自動録音</string>
+    <string name="enable_outgoing_call_recording_sum">発信時に自動的に録音します。</string>
+    <string name="enable_incoming_call_recording_title">着信時に自動録音</string>
+    <string name="enable_incoming_call_recording_sum">着信時に自動的に録音します。</string>
+    <string name="menu_file">ファイル設定</string>
+    <string name="file_path_title">保存場所</string>
+    <string name="file_path_sum">自動録音したファイルの保存場所を変更します。</string>
+    <string name="file_path_note">デフォルト: </string>
+    <string name="file_format_title">ファイル名の形式</string>
+    <string name="file_format_sum">ファイル名の形式を変更します。</string>
+    <string name="file_format_note">デフォルト: nn_pp_yyyyMMddHHmmss\n\n形式:\nnn 発信者名\npp 電話番号\nyyyy 年\nMM 月\ndd 日\nHH 時間\nmm 分\nss 秒</string>
+    <string name="optimize_display_caller_name_title">発信者名表示の最適化</string>
+    <string name="optimize_display_caller_name_sum">発信者名が不明な場合は隠すようにします。</string>
+    <string name="menu_about">情報</string>
+    <string name="app_info_title">XRecorder</string>
+
+</resources>
