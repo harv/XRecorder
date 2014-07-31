@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.haoutil.xposed.xrecorder"
     android:versionCode="1"
-    android:versionName="1.1" >
+    android:versionName="1.2" >
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -26,7 +26,7 @@
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="Enable Sony Xperia™ devices auto call recording." />
+            android:value="@string/app_description" />
         <meta-data
             android:name="xposedminversion"
             android:value="30" />

@@ -103,6 +103,8 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookZygoteInit 
 						callerName = callerInfo.name;
 						phoneNumber = callerInfo.phoneNumber.startsWith("sip:") ? callerInfo.phoneNumber.substring(4) : callerInfo.phoneNumber;
 					} catch (Exception e) {
+						callerName = "unkown caller";
+						phoneNumber = "";
 						XposedBridge.log(TAG + " can not get caller info.");
 					}
 					

@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">XRecorder</string>
+    <string name="app_description">Enable Sony Xperia™ devices auto call recording.</string>
     <string name="menu_switcher">スイッチ</string>
     <string name="enable_auto_call_recording_title">自動通話録音の有効化</string>
     <string name="enable_auto_call_recording_sum">通話開始時に自動的に録音を始めます。</string>
@@ -20,5 +21,7 @@
     <string name="optimize_display_caller_name_sum">発信者名が不明な場合は隠すようにします。</string>
     <string name="menu_about">情報</string>
     <string name="app_info_title">XRecorder</string>
+    <string name="app_info_version">Version:</string>
+    <string name="app_info_author">Author: Harv Chen(ch05042210@gmail.com)</string>
 
 </resources>

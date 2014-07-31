@@ -64,7 +64,7 @@ public class SettingsActivity extends Activity {
 			cbEnableIncoming.setEnabled(cbEnableAll.isChecked());
 			
 			etFilePath = (EditTextPreference) findPreference("pref_file_path");
-			etFilePath.setDialogMessage("Default directory: " + Common.DEFAULT_SAVEDIRECTORY);
+			etFilePath.setDialogMessage(getString(R.string.file_path_note) + Common.DEFAULT_SAVEDIRECTORY);
 			if (etFilePath.getText() == null || "".equals(etFilePath.getText())) {
 				etFilePath.setText(Common.DEFAULT_SAVEDIRECTORY);
 			}
@@ -75,7 +75,7 @@ public class SettingsActivity extends Activity {
 			}
 			
 			pAppinfo = findPreference("pref_app_info");
-			pAppinfo.setSummary("Version: v" + versionName + "\nAuthor: Harv Chen(ch05042210@gmail.com)");
+			pAppinfo.setSummary(getString(R.string.app_info_version) + " v" + versionName + "\n" + getString(R.string.app_info_author));
 		}
 	}
 }

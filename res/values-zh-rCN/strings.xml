@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">XRecorder</string>
+    <string name="app_description">开启Sony Xperia™设备自动通话录音</string>
+    <string name="menu_switcher">开关</string>
+    <string name="enable_auto_call_recording_title">启用自动录音</string>
+    <string name="enable_auto_call_recording_sum">电话接通时自动录音</string>
+    <string name="enable_outgoing_call_recording_title">录制去电</string>
+    <string name="enable_outgoing_call_recording_sum">自动录制去电</string>
+    <string name="enable_incoming_call_recording_title">录制来电</string>
+    <string name="enable_incoming_call_recording_sum">自动录制来电</string>
+    <string name="menu_file">录音文件</string>
+    <string name="file_path_title">存放路径</string>
+    <string name="file_path_sum">点击更改录音文件名存放路径</string>
+    <string name="file_path_note">默认值: </string>
+    <string name="file_format_title">文件名格式</string>
+    <string name="file_format_sum">点击更改文件名格式</string>
+    <string name="file_format_note">默认值: nn_pp_yyyyMMddHHmmss\n\n格式:\nnn 联系人名称\npp 号码\nyyyy 年\nMM 月\ndd 日\nHH 时\nmm 分\nss 秒</string>
+    <string name="optimize_display_caller_name_title">优化联系人姓名</string>
+    <string name="optimize_display_caller_name_sum">联系人姓名未知时不显示在文件名中</string>
+    <string name="menu_about">关于</string>
+    <string name="app_info_title">XRecorder</string>
+    <string name="app_info_version">版本:</string>
+    <string name="app_info_author">作者: Harv Chen(ch05042210@gmail.com)</string>
+
+</resources>
