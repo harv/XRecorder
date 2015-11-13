@@ -42,6 +42,9 @@
     <PreferenceCategory
         android:key="pref_menu_about"
         android:title="@string/menu_about" >
+        <CheckBoxPreference
+            android:key="pref_enable_logging"
+            android:title="@string/enable_logging_title" />
         <Preference
             android:key="pref_app_info"
             android:title="@string/app_info_title" />

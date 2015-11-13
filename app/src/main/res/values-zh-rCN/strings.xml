@@ -20,8 +20,14 @@
     <string name="optimize_display_caller_name_title">优化联系人姓名</string>
     <string name="optimize_display_caller_name_sum">联系人姓名未知时不显示在文件名中</string>
     <string name="menu_about">关于</string>
+    <string name="enable_logging_title">记录日志</string>
     <string name="app_info_title">XRecorder</string>
     <string name="app_info_version">版本:</string>
-    <string name="app_info_author">作者: Harv Chen(ch05042210@gmail.com)</string>
+    <string name="app_info_author">作者: Harv Chen(apps@haoutil.com)</string>
+    <string name="only_support_builtin_recorder">仅支持Sony内置通话录音工具</string>
+    <string name="alert_warning">警告</string>
+    <string name="alert_only_support_sony_device">仅支持Sony Xperia设备</string>
+    <string name="alert_no_recorder_exist">没有检测到通话录音工具！\n\n提示：XRecorder仅支持官方rom。</string>
+    <string name="alert_ok_button">确认</string>
 
 </resources>
