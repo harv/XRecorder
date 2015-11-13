@@ -26,8 +26,9 @@
     <string name="app_info_author">作者: Harv Chen(apps@haoutil.com)</string>
     <string name="only_support_builtin_recorder">仅支持Sony内置通话录音工具</string>
     <string name="alert_warning">警告</string>
+    <string name="alert_module_not_enable">请在Xposed Installer中启用XRecorder并重启手机</string>
     <string name="alert_only_support_sony_device">仅支持Sony Xperia设备</string>
-    <string name="alert_no_recorder_exist">没有检测到通话录音工具！\n\n提示：XRecorder仅支持官方rom。</string>
+    <string name="alert_no_recorder_exist">没有检测到通话录音工具！\n\n提示\n1.仅支持官方rom\n2.Lollipop需要安装com.sonymobile.callrecording</string>
     <string name="alert_ok_button">确认</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package com.haoutil.xposed.xrecorder.hook;
 
+import com.android.server.CustomService;
 import com.haoutil.xposed.xrecorder.util.Logger;
 import com.haoutil.xposed.xrecorder.util.SettingsHelper;
 
@@ -9,8 +10,6 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class HookBuiltin extends BaseHook {
-    public static boolean isBuiltinRecorderExist;
-
     private Object mCM;
     private Object mCallRecorder;
     private Object previousState;
@@ -24,10 +23,9 @@ public class HookBuiltin extends BaseHook {
     @Override
     public void hook(XC_LoadPackage.LoadPackageParam loadPackageParam) {
         try {
-            Class.forName("com.android.phone.SomcInCallScreen");
-            isBuiltinRecorderExist = true;
-        } catch (ClassNotFoundException e) {
-            isBuiltinRecorderExist = false;
+            Class.forName("com.android.phone.SomcCallRecorder");
+            CustomService.getClient().setBuiltinRecorderExist(true);
+        } catch (Exception e) {
             return;
         }
 

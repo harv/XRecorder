@@ -5,6 +5,8 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.ICustomService;
 
+import java.lang.reflect.Method;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -18,6 +20,7 @@ public class CustomService extends ICustomService.Stub {
     private static CustomService mCustomService;
     private static ICustomService mClient;
 
+    private boolean builtinRecorderExist;
     private String callerName;
     private String phoneNumber;
 
@@ -27,12 +30,13 @@ public class CustomService extends ICustomService.Stub {
 
     public static ICustomService getClient() {
         if (mClient == null) {
-            Class<?> ServiceManager = XposedHelpers.findClass("android.os.ServiceManager", null);
-            mClient = ICustomService.Stub.asInterface((IBinder) XposedHelpers.callStaticMethod(
-                    ServiceManager,
-                    "getService",
-                    getServiceName()
-            ));
+            try {
+                Class<?> ServiceManager = Class.forName("android.os.ServiceManager");
+                Method getService = ServiceManager.getDeclaredMethod("getService", String.class);
+                mClient = ICustomService.Stub.asInterface((IBinder) getService.invoke(null, getServiceName()));
+            } catch (Throwable t) {
+                mClient = null;
+            }
         }
 
         return mClient;
@@ -92,6 +96,15 @@ public class CustomService extends ICustomService.Stub {
 
     private void systemReady() {
         // Make initialization here
+    }
+
+    @Override
+    public boolean isBuiltinRecorderExist() {
+        return builtinRecorderExist;
+    }
+
+    public void setBuiltinRecorderExist(boolean builtinRecorderExist) {
+        this.builtinRecorderExist = builtinRecorderExist;
     }
 
     public String getCallerName() {

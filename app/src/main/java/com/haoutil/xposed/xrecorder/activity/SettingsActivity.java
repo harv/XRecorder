@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ICustomService;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
@@ -12,9 +13,9 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 import android.text.TextUtils;
 
+import com.android.server.CustomService;
 import com.haoutil.xposed.xrecorder.BuildConfig;
 import com.haoutil.xposed.xrecorder.R;
-import com.haoutil.xposed.xrecorder.hook.HookBuiltin;
 import com.haoutil.xposed.xrecorder.util.Constants;
 
 public class SettingsActivity extends BaseActivity {
@@ -51,7 +52,14 @@ public class SettingsActivity extends BaseActivity {
 
             addPreferencesFromResource(R.xml.preferences);
 
-            isBuiltinRecorderExist = HookBuiltin.isBuiltinRecorderExist;
+            ICustomService customService = CustomService.getClient();
+            if (customService != null) {
+                try {
+                    isBuiltinRecorderExist = customService.isBuiltinRecorderExist();
+                } catch (Throwable t) {
+                    isBuiltinRecorderExist = false;
+                }
+            }
             isSeparateRecorderExist = packageExists("com.sonymobile.callrecording");
 
             cbEnableAll = (CheckBoxPreference) findPreference("pref_enable_auto_call_recording");
@@ -98,6 +106,10 @@ public class SettingsActivity extends BaseActivity {
 
             pAppInfo = findPreference("pref_app_info");
             pAppInfo.setSummary(getString(R.string.app_info_version) + " v" + BuildConfig.VERSION_NAME + "\n" + getString(R.string.app_info_author));
+
+            if (customService == null) {
+                showAlert(R.string.alert_module_not_enable);
+            }
 
             if (!Build.MANUFACTURER.startsWith("Sony")) {
                 showAlert(R.string.alert_only_support_sony_device);
