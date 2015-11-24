@@ -17,9 +17,6 @@ public class HookSeparate extends BaseHook {
     private Class<? extends Enum> State;
     private Class<? extends Enum> Transition;
 
-    private boolean waitingForRecording;
-    private boolean recordingStopped;
-
     public HookSeparate(SettingsHelper mSettingsHelper, Logger mLogger) {
         super(mSettingsHelper, mLogger);
     }
@@ -71,18 +68,19 @@ public class HookSeparate extends BaseHook {
                         if (!mSettingsHelper.isEnableAutoRecord()) {
                             return;
                         }
+                        ICustomService customService = CustomService.getClient();
                         switch (intent.getAction()) {
                             case "com.sonymobile.callrecording.callstarted":
                                 // call START and END both trigger "com.sonymobile.callrecording.callstarted" Action
-                                if (recordingStopped) {
+                                if (customService.isRecordingStopped()) {
                                     // call end and manual stop recording, skip
                                     // otherwise it will start recording again
-                                    recordingStopped = false;
+                                    customService.setRecordingStopped(false);
                                     return;
                                 }
-                                if (waitingForRecording) {
+                                if (customService.isWaitingForRecording()) {
                                     // clear if delay recording is failed
-                                    waitingForRecording = false;
+                                    customService.setWaitingForRecording(false);
                                 }
                                 Object mState = XposedHelpers.getObjectField(param.thisObject, "mState");
                                 if (Enum.valueOf(State, "IDLE") == mState) {
@@ -94,18 +92,18 @@ public class HookSeparate extends BaseHook {
                                 } else if (Enum.valueOf(State, "OFF") == mState) {
                                     // CallRecorder is not prepared, wait...
                                     // often occurs when CallRecorder first create
-                                    waitingForRecording = true;
+                                    customService.setWaitingForRecording(true);
                                 }
                                 break;
                             case "com.sonymobile.callrecording.stoprecodring":
                                 // manual stop recording
                                 mLogger.log("end recording(manual)");
-                                recordingStopped = true;
+                                customService.setRecordingStopped(true);
                                 break;
                             case "com.sonymobile.callwidgetframework.WIDGET_ACTION_SELECTED":
                                 // manual start recording
                                 mLogger.log("start recording(manual)");
-                                recordingStopped = false;
+                                customService.setRecordingStopped(false);
                                 break;
                         }
                     }
@@ -131,10 +129,11 @@ public class HookSeparate extends BaseHook {
                 XposedBridge.hookAllMethods(callRecordingRemoteUI, "setEnabled", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (waitingForRecording && (Boolean) param.args[0] && mCallRecordingService != null) {
+                        ICustomService customService = CustomService.getClient();
+                        if (customService.isWaitingForRecording() && (Boolean) param.args[0] && mCallRecordingService != null) {
                             mLogger.log("start recording(delay)");
                             XposedHelpers.callMethod(mCallRecordingService, "transitionToState", Enum.valueOf(Transition, "START_RECORDING"));
-                            waitingForRecording = false;
+                            customService.setWaitingForRecording(false);
                         }
                     }
                 });

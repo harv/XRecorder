@@ -20,6 +20,8 @@ public class CustomService extends ICustomService.Stub {
     private static CustomService mCustomService;
     private static ICustomService mClient;
 
+    private boolean waitingForRecording;
+    private boolean recordingStopped;
     private boolean builtinRecorderExist;
     private String callerName;
     private String phoneNumber;
@@ -103,22 +105,47 @@ public class CustomService extends ICustomService.Stub {
         return builtinRecorderExist;
     }
 
+    @Override
     public void setBuiltinRecorderExist(boolean builtinRecorderExist) {
         this.builtinRecorderExist = builtinRecorderExist;
     }
 
+    @Override
+    public boolean isWaitingForRecording() {
+        return waitingForRecording;
+    }
+
+    @Override
+    public void setWaitingForRecording(boolean waitingForRecording) {
+        this.waitingForRecording = waitingForRecording;
+    }
+
+    @Override
+    public boolean isRecordingStopped() {
+        return recordingStopped;
+    }
+
+    @Override
+    public void setRecordingStopped(boolean recordingStopped) {
+        this.recordingStopped = recordingStopped;
+    }
+
+    @Override
     public String getCallerName() {
         return callerName;
     }
 
+    @Override
     public void setCallerName(String callerName) {
         this.callerName = callerName;
     }
 
+    @Override
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
+    @Override
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
