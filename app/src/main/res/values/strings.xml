@@ -26,7 +26,7 @@
     <string name="app_info_author">Author: Harv Chen(apps@haoutil.com)</string>
     <string name="only_support_builtin_recorder">Only support builtin recorder</string>
     <string name="alert_warning">Warning</string>
-    <string name="alert_module_not_enable">Please enable XRecorder in Xposed Installer and restart</string>
+    <string name="alert_module_not_enable">Please enable XRecorder in Xposed Installer and reboot</string>
     <string name="alert_only_support_sony_device">Only support Sony Xperia Device</string>
     <string name="alert_no_recorder_exist">No Recorder Found!\n\nTip:\n1.only support stock rom\n2.com.sonymobile.callrecording is required on Lollipop</string>
     <string name="alert_ok_button">OK</string>
