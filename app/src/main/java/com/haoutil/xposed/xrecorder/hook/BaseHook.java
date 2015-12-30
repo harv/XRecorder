@@ -24,6 +24,7 @@ public abstract class BaseHook {
 
     public void changeFileName(XC_MethodHook.MethodHookParam param) {
         if (TextUtils.isEmpty(phoneNumber)) {
+            mLogger.log("can not change file name.");
             return;
         }
         phoneNumber = phoneNumber.replaceAll(" ", "");
@@ -37,18 +38,19 @@ public abstract class BaseHook {
             }
         }
 
-        String[] results = ((String) param.getResult()).replace(".amr", "").split("-");
+        String[] results = ((String) param.getResult()).split("\\.");
+        String[] names = results[0].split("-");
         fileName = fileName
                 .replaceAll("nn", callerName)
                 .replaceAll("pp", phoneNumber)
-                .replaceAll("yyyy", results[0])
-                .replaceAll("MM", results[1])
-                .replaceAll("dd", results[2])
-                .replaceAll("HH", results[3])
-                .replaceAll("mm", results[4])
-                .replaceAll("ss", results[5]);
+                .replaceAll("yyyy", names[0])
+                .replaceAll("MM", names[1])
+                .replaceAll("dd", names[2])
+                .replaceAll("HH", names[3])
+                .replaceAll("mm", names[4])
+                .replaceAll("ss", names[5]);
 
-        param.setResult(fileName + ".amr");
+        param.setResult(fileName + "." + results[1]);
 
         callerName = null;
         phoneNumber = null;

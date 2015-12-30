@@ -23,7 +23,7 @@ public class HookBuiltin extends BaseHook {
     @Override
     public void hook(XC_LoadPackage.LoadPackageParam loadPackageParam) {
         try {
-            Class.forName("com.android.phone.SomcCallRecorder");
+            Class.forName("com.android.phone.SomcCallRecorder", false, loadPackageParam.classLoader);
             CustomService.getClient().setBuiltinRecorderExist(true);
         } catch (Exception e) {
             return;
@@ -72,9 +72,10 @@ public class HookBuiltin extends BaseHook {
                         if (phoneNumber.startsWith("sip:")) {
                             phoneNumber = phoneNumber.substring(4);
                         }
-                    } catch (Exception e) {
+                    } catch (NoSuchMethodError e) {
                         callerName = null;
                         phoneNumber = null;
+                        mLogger.log("can not get caller info.");
                     }
                     try {
                         if (previousState == Enum.valueOf(CallState, "ALERTING")) {
@@ -90,8 +91,12 @@ public class HookBuiltin extends BaseHook {
                             XposedHelpers.callMethod(mCallRecorder, "setSaveDirectory", mSettingsHelper.getSaveDirectory() + "/incoming");
                             mLogger.log("recording incoming call");
                         }
+                    } catch (NoSuchMethodError e) {
+                        mLogger.log("can not set save directory.");
+                    }
+                    try {
                         XposedHelpers.callMethod(mCallRecorder, "start");
-                    } catch (Exception e) {
+                    } catch (NoSuchMethodError e) {
                         mLogger.log("can not start call recorder.");
                     }
                 }
