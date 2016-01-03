@@ -64,19 +64,30 @@ public class HookBuiltin extends BaseHook {
                     if ((Boolean) XposedHelpers.callMethod(mCallRecorder, "isRecording")) {
                         return;
                     }
+                    // get callerInfo
+                    Object callerInfo;
+                    Object call = XposedHelpers.callMethod(mCM, "getActiveFgCall");
                     try {
-                        Object callerInfo = XposedHelpers.callMethod(param.thisObject, "getCallerInfoFromConnection",
-                                XposedHelpers.callMethod(param.thisObject, "getConnectionFromCall", XposedHelpers.callMethod(mCM, "getActiveFgCall")));
+                        // try builtin methods
+                        callerInfo = XposedHelpers.callMethod(param.thisObject, "getCallerInfoFromConnection",
+                                XposedHelpers.callMethod(param.thisObject, "getConnectionFromCall", call)
+                        );
+                    } catch (NoSuchMethodError e) {
+                        // otherwise try our methods(for old firmwares)
+                        callerInfo = getCallerInfoFromConnection(getConnectionFromCall(call));
+                    }
+                    if (callerInfo != null) {
                         callerName = (String) XposedHelpers.getObjectField(callerInfo, "name");
                         phoneNumber = (String) XposedHelpers.getObjectField(callerInfo, "phoneNumber");
                         if (phoneNumber.startsWith("sip:")) {
                             phoneNumber = phoneNumber.substring(4);
                         }
-                    } catch (NoSuchMethodError e) {
+                    } else {
                         callerName = null;
                         phoneNumber = null;
                         mLogger.log("can not get caller info.");
                     }
+                    // setSaveDirectory
                     try {
                         if (previousState == Enum.valueOf(CallState, "ALERTING")) {
                             if (!mSettingsHelper.isEnableRecordOutgoing()) {
@@ -115,5 +126,36 @@ public class HookBuiltin extends BaseHook {
                 changeFileName(param);
             }
         });
+    }
+
+    private Object getCallerInfoFromConnection(Object connection) {
+        Object userData = XposedHelpers.callMethod(connection, "getUserData");
+        if (isInstance(userData, "com.android.internal.telephony.CallerInfo")) {
+            return userData;
+        } else if (isInstance(userData, "com.android.phone.SomcCallerInfo")) {
+            return XposedHelpers.getObjectField(userData, "currentInfo");
+        }
+        return null;
+    }
+
+    private Object getConnectionFromCall(Object call) {
+        int phoneType = (int) XposedHelpers.callMethod(XposedHelpers.callMethod(call, "getPhone"), "getPhoneType");
+        switch (phoneType) {
+            case 1:
+            case 3:
+                return XposedHelpers.callMethod(call, "getEarliestConnection");
+            case 2:
+                return XposedHelpers.callMethod(call, "getLatestConnection");
+        }
+        throw new IllegalStateException("Unexpected phone type: " + phoneType);
+    }
+
+    private boolean isInstance(Object o, String className) {
+        try {
+            Class clazz = Class.forName(className);
+            return clazz.isInstance(o);
+        } catch (ClassNotFoundException ex) {
+            return false;
+        }
     }
 }
