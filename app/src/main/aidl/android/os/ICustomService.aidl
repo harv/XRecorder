@@ -16,4 +16,7 @@ interface ICustomService {
 
     String getPhoneNumber();
     void setPhoneNumber(String phoneNumber);
+
+    boolean isSetSaveDirectoryable();
+    void setSetSaveDirectoryable(boolean setSaveDirectoryable);
 }

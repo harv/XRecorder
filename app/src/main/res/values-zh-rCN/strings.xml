@@ -24,7 +24,7 @@
     <string name="app_info_title">XRecorder</string>
     <string name="app_info_version">版本:</string>
     <string name="app_info_author">作者: Harv Chen(apps@haoutil.com)</string>
-    <string name="only_support_builtin_recorder">仅支持Sony内置通话录音工具</string>
+    <string name="only_support_builtin_recorder">仅支持某些版本的内置通话录音工具</string>
     <string name="alert_warning">警告</string>
     <string name="alert_module_not_enable">请在Xposed Installer中启用XRecorder并重启手机</string>
     <string name="alert_only_support_sony_device">仅支持Sony Xperia设备</string>

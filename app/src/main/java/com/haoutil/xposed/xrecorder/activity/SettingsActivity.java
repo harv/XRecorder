@@ -43,6 +43,7 @@ public class SettingsActivity extends BaseActivity {
 
         private boolean isBuiltinRecorderExist;
         private boolean isSeparateRecorderExist;
+        private boolean setSaveDirectoryable;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -56,8 +57,10 @@ public class SettingsActivity extends BaseActivity {
             if (customService != null) {
                 try {
                     isBuiltinRecorderExist = customService.isBuiltinRecorderExist();
+                    setSaveDirectoryable = customService.isSetSaveDirectoryable();
                 } catch (Throwable t) {
                     isBuiltinRecorderExist = false;
+                    setSaveDirectoryable = false;
                 }
             }
             isSeparateRecorderExist = packageExists("com.sonymobile.callrecording");
@@ -91,7 +94,7 @@ public class SettingsActivity extends BaseActivity {
 
             etFilePath = (EditTextPreference) findPreference("pref_file_path");
             etFilePath.setDialogMessage(getString(R.string.file_path_note) + Constants.DEFAULT_FILE_PATH);
-            if (isSeparateRecorderExist) {
+            if (isSeparateRecorderExist || !setSaveDirectoryable) {
                 etFilePath.setEnabled(false);
                 etFilePath.setSummary(R.string.only_support_builtin_recorder);
             }

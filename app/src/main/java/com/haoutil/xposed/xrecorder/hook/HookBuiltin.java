@@ -23,8 +23,14 @@ public class HookBuiltin extends BaseHook {
     @Override
     public void hook(XC_LoadPackage.LoadPackageParam loadPackageParam) {
         try {
-            Class.forName("com.android.phone.SomcCallRecorder", false, loadPackageParam.classLoader);
+            Class<?> clazz = Class.forName("com.android.phone.SomcCallRecorder", false, loadPackageParam.classLoader);
             CustomService.getClient().setBuiltinRecorderExist(true);
+            try {
+                clazz.getDeclaredMethod("setSaveDirectory", String.class);
+                CustomService.getClient().setSetSaveDirectoryable(true);
+            } catch (NoSuchMethodException ne) {
+                mLogger.log("not support change save directory.");
+            }
         } catch (Exception e) {
             return;
         }

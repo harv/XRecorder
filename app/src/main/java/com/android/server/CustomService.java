@@ -25,6 +25,7 @@ public class CustomService extends ICustomService.Stub {
     private boolean builtinRecorderExist;
     private String callerName;
     private String phoneNumber;
+    private boolean setSaveDirectoryable;
 
     public CustomService(Context context) {
         mContext = context;
@@ -148,5 +149,15 @@ public class CustomService extends ICustomService.Stub {
     @Override
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    @Override
+    public boolean isSetSaveDirectoryable() {
+        return setSaveDirectoryable;
+    }
+
+    @Override
+    public void setSetSaveDirectoryable(boolean setSaveDirectoryable) {
+        this.setSaveDirectoryable = setSaveDirectoryable;
     }
 }

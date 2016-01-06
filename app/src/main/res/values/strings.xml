@@ -18,13 +18,13 @@
     <string name="file_format_sum">Change the pattern of audio file name.</string>
     <string name="file_format_note">Default value: nn_pp_yyyyMMddHHmmss\n\nPattern:\nnn caller name\npp phone number\nyyyy year\nMM month\ndd day\nHH hour\nmm minute\nss second</string>
     <string name="optimize_display_caller_name_title">Optimized display caller name</string>
-    <string name="optimize_display_caller_name_sum">Hide caller name when caller name is unkonwn.</string>
+    <string name="optimize_display_caller_name_sum">Hide caller name when caller name is unknown.</string>
     <string name="menu_about">ABOUT</string>
     <string name="enable_logging_title">Enable logging</string>
     <string name="app_info_title">XRecorder</string>
     <string name="app_info_version">Version:</string>
     <string name="app_info_author">Author: Harv Chen(apps@haoutil.com)</string>
-    <string name="only_support_builtin_recorder">Only support builtin recorder</string>
+    <string name="only_support_builtin_recorder">Only support certain versions of builtin recorders</string>
     <string name="alert_warning">Warning</string>
     <string name="alert_module_not_enable">Please enable XRecorder in Xposed Installer and reboot</string>
     <string name="alert_only_support_sony_device">Only support Sony Xperia Device</string>
