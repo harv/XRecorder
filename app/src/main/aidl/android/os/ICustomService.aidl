@@ -19,4 +19,7 @@ interface ICustomService {
 
     boolean isSetSaveDirectoryable();
     void setSetSaveDirectoryable(boolean setSaveDirectoryable);
+
+    String getPhoneState();
+    void setPhoneState(String phoneState);
 }

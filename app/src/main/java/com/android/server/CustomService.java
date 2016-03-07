@@ -26,6 +26,7 @@ public class CustomService extends ICustomService.Stub {
     private String callerName;
     private String phoneNumber;
     private boolean setSaveDirectoryable;
+    private String phoneState;
 
     public CustomService(Context context) {
         mContext = context;
@@ -159,5 +160,15 @@ public class CustomService extends ICustomService.Stub {
     @Override
     public void setSetSaveDirectoryable(boolean setSaveDirectoryable) {
         this.setSaveDirectoryable = setSaveDirectoryable;
+    }
+
+    @Override
+    public String getPhoneState() {
+        return phoneState;
+    }
+
+    @Override
+    public void setPhoneState(String phoneState) {
+        this.phoneState = phoneState;
     }
 }

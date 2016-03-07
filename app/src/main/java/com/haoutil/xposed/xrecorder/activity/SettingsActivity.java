@@ -66,31 +66,19 @@ public class SettingsActivity extends BaseActivity {
             isSeparateRecorderExist = packageExists("com.sonymobile.callrecording");
 
             cbEnableAll = (CheckBoxPreference) findPreference("pref_enable_auto_call_recording");
-            if (!isSeparateRecorderExist) {
-                cbEnableAll.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        cbEnableOutgoing.setEnabled((Boolean) newValue);
-                        cbEnableIncoming.setEnabled((Boolean) newValue);
-                        return true;
-                    }
-                });
-            }
+            cbEnableAll.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    cbEnableOutgoing.setEnabled((Boolean) newValue);
+                    cbEnableIncoming.setEnabled((Boolean) newValue);
+                    return true;
+                }
+            });
 
             cbEnableOutgoing = (CheckBoxPreference) findPreference("pref_enable_outgoing_call_recording");
-            if (isSeparateRecorderExist) {
-                cbEnableOutgoing.setEnabled(false);
-                cbEnableOutgoing.setSummary(R.string.only_support_builtin_recorder);
-            } else {
-                cbEnableOutgoing.setEnabled(cbEnableAll.isChecked());
-            }
+            cbEnableOutgoing.setEnabled(cbEnableAll.isChecked());
 
             cbEnableIncoming = (CheckBoxPreference) findPreference("pref_enable_incoming_call_recording");
-            if (isSeparateRecorderExist) {
-                cbEnableIncoming.setEnabled(false);
-                cbEnableIncoming.setSummary(R.string.only_support_builtin_recorder);
-            } else {
-                cbEnableIncoming.setEnabled(cbEnableAll.isChecked());
-            }
+            cbEnableIncoming.setEnabled(cbEnableAll.isChecked());
 
             etFilePath = (EditTextPreference) findPreference("pref_file_path");
             etFilePath.setDialogMessage(getString(R.string.file_path_note) + Constants.DEFAULT_FILE_PATH);
@@ -110,12 +98,12 @@ public class SettingsActivity extends BaseActivity {
             pAppInfo = findPreference("pref_app_info");
             pAppInfo.setSummary(getString(R.string.app_info_version) + " v" + BuildConfig.VERSION_NAME + "\n" + getString(R.string.app_info_author));
 
-            if (customService == null) {
-                showAlert(R.string.alert_module_not_enable);
+            if (!Build.MANUFACTURER.toLowerCase().startsWith("sony")) {
+                showAlert(R.string.alert_only_support_sony_device);
             }
 
-            if (!Build.MANUFACTURER.startsWith("Sony")) {
-                showAlert(R.string.alert_only_support_sony_device);
+            if (customService == null) {
+                showAlert(R.string.alert_module_not_enable);
             }
 
             boolean isRecorderExist = isBuiltinRecorderExist || isSeparateRecorderExist;

@@ -13,6 +13,8 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class HookSeparate extends BaseHook {
+    private Class<? extends Enum> InCallState;
+
     private Object mCallRecordingService;
     private Class<? extends Enum> State;
     private Class<? extends Enum> Transition;
@@ -42,6 +44,25 @@ public class HookSeparate extends BaseHook {
                         } else {
                             customService.setCallerName((String) param.args[1]);
                             customService.setPhoneNumber((String) param.args[0]);
+                        }
+                    }
+                });
+                mLogger.log("hook com.android.incallui.CallCardPresenter...");
+                final Class<?> callCardPresenter = XposedHelpers.findClass("com.android.incallui.CallCardPresenter", loadPackageParam.classLoader);
+                XposedBridge.hookAllMethods(callCardPresenter, "init", new XC_MethodHook() {
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        InCallState = (Class<? extends Enum>) XposedHelpers.findClass("com.android.incallui.InCallPresenter$InCallState", loadPackageParam.classLoader);
+                    }
+                });
+                XposedBridge.hookAllMethods(callCardPresenter, "onStateChange", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (param.args[0] == Enum.valueOf(InCallState, "INCOMING")) {
+                            CustomService.getClient().setPhoneState("INCOMING");
+                        } else if (param.args[0] == Enum.valueOf(InCallState, "OUTGOING")) {
+                            CustomService.getClient().setPhoneState("OUTGOING");
                         }
                     }
                 });
@@ -84,6 +105,10 @@ public class HookSeparate extends BaseHook {
                                 }
                                 Object mState = XposedHelpers.getObjectField(param.thisObject, "mState");
                                 if (Enum.valueOf(State, "IDLE") == mState) {
+                                    if (customService.getPhoneState().equals("INCOMING") && !mSettingsHelper.isEnableRecordIncoming()
+                                            || customService.getPhoneState().equals("OUTGOING") && !mSettingsHelper.isEnableRecordOutgoing()) {
+                                        return;
+                                    }
                                     mLogger.log("start recording");
                                     XposedHelpers.callMethod(param.thisObject, "transitionToState", Enum.valueOf(Transition, "START_RECORDING"));
                                 } else if (Enum.valueOf(State, "RECORDING") == mState) {
@@ -131,6 +156,10 @@ public class HookSeparate extends BaseHook {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         ICustomService customService = CustomService.getClient();
                         if (customService.isWaitingForRecording() && (Boolean) param.args[0] && mCallRecordingService != null) {
+                            if (customService.getPhoneState().equals("INCOMING") && !mSettingsHelper.isEnableRecordIncoming()
+                                    || customService.getPhoneState().equals("OUTGOING") && !mSettingsHelper.isEnableRecordOutgoing()) {
+                                return;
+                            }
                             mLogger.log("start recording(delay)");
                             XposedHelpers.callMethod(mCallRecordingService, "transitionToState", Enum.valueOf(Transition, "START_RECORDING"));
                             customService.setWaitingForRecording(false);
