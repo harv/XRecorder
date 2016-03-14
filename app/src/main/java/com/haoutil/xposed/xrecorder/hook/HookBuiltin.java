@@ -10,6 +10,8 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class HookBuiltin extends BaseHook {
+    private boolean setSaveDirectoryable;
+
     private Object mCM;
     private Object mCallRecorder;
     private Object previousState;
@@ -28,6 +30,7 @@ public class HookBuiltin extends BaseHook {
             try {
                 clazz.getDeclaredMethod("setSaveDirectory", String.class);
                 CustomService.getClient().setSetSaveDirectoryable(true);
+                setSaveDirectoryable = true;
             } catch (NoSuchMethodException ne) {
                 mLogger.log("not support change save directory.");
             }
@@ -94,24 +97,23 @@ public class HookBuiltin extends BaseHook {
                         mLogger.log("can not get caller info.");
                     }
                     // setSaveDirectory
-                    try {
+                    if (setSaveDirectoryable) {
+                        String[] value = mSettingsHelper.getFileCallType();
                         if (previousState == Enum.valueOf(CallState, "ALERTING")) {
                             if (!mSettingsHelper.isEnableRecordOutgoing()) {
                                 return;
                             }
-                            callType = "OUTGOING";
+                            callType = value[0];
                             XposedHelpers.callMethod(mCallRecorder, "setSaveDirectory", mSettingsHelper.getSaveDirectory() + "/outgoing");
                             mLogger.log("recording outgoing call");
                         } else {
                             if (!mSettingsHelper.isEnableRecordIncoming()) {
                                 return;
                             }
-                            callType = "INCOMING";
+                            callType = value[1];
                             XposedHelpers.callMethod(mCallRecorder, "setSaveDirectory", mSettingsHelper.getSaveDirectory() + "/incoming");
                             mLogger.log("recording incoming call");
                         }
-                    } catch (NoSuchMethodError e) {
-                        mLogger.log("can not set save directory.");
                     }
                     try {
                         XposedHelpers.callMethod(mCallRecorder, "start");

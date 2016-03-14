@@ -53,6 +53,11 @@ public class SettingsHelper {
         return getString("pref_file_format", Constants.DEFAULT_FILE_FORMAT);
     }
 
+    public String[] getFileCallType() {
+        reload();
+        return getString("pref_file_calltype", Constants.DEFAULT_FILE_CALLTYPE).split(":");
+    }
+
     public boolean isEnableLogging() {
         return getBoolean("pref_enable_logging", false);
     }

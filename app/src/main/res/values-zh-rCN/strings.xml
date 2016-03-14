@@ -17,6 +17,10 @@
     <string name="file_format_title">文件名格式</string>
     <string name="file_format_sum">点击更改文件名格式</string>
     <string name="file_format_note">默认值: nn_pp_yyyyMMddHHmmss\n\n格式:\ntt 通话类型（来电/去电）\nnn 联系人名称\npp 号码\nyyyy 年\nMM 月\ndd 日\nHH 时\nmm 分\nss 秒</string>
+    <string name="file_calltype_title">自定义通话类型</string>
+    <string name="file_calltype_sum">自定义文件名中的通话类型.</string>
+    <string name="file_calltype_incoming">来电:</string>
+    <string name="file_calltype_outgoing">去电:</string>
     <string name="optimize_display_caller_name_title">优化联系人姓名</string>
     <string name="optimize_display_caller_name_sum">联系人姓名未知时不显示在文件名中</string>
     <string name="menu_about">关于</string>

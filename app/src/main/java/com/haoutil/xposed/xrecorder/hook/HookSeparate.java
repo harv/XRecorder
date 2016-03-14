@@ -144,7 +144,8 @@ public class HookSeparate extends BaseHook {
                                 || customService.getPhoneState().equals("OUTGOING") && !mSettingsHelper.isEnableRecordOutgoing()) {
                             return;
                         }
-                        callType = customService.getPhoneState();
+                        String[] value = mSettingsHelper.getFileCallType();
+                        callType = "INCOMING".equals(customService.getPhoneState()) ? value[0] : value[1];
                         callerName = customService.getCallerName();
                         phoneNumber = customService.getPhoneNumber();
                         changeFileName(param);

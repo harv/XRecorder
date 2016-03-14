@@ -33,6 +33,10 @@
             android:key="pref_file_format"
             android:summary="@string/file_format_sum"
             android:title="@string/file_format_title" />
+        <com.haoutil.xposed.xrecorder.widget.TwoEditTextPreference
+            android:key="pref_file_calltype"
+            android:summary="@string/file_calltype_sum"
+            android:title="@string/file_calltype_title" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_optimize_display_caller_name"
