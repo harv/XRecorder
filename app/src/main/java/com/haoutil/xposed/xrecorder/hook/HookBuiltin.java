@@ -99,12 +99,14 @@ public class HookBuiltin extends BaseHook {
                             if (!mSettingsHelper.isEnableRecordOutgoing()) {
                                 return;
                             }
+                            callType = "OUTGOING";
                             XposedHelpers.callMethod(mCallRecorder, "setSaveDirectory", mSettingsHelper.getSaveDirectory() + "/outgoing");
                             mLogger.log("recording outgoing call");
                         } else {
                             if (!mSettingsHelper.isEnableRecordIncoming()) {
                                 return;
                             }
+                            callType = "INCOMING";
                             XposedHelpers.callMethod(mCallRecorder, "setSaveDirectory", mSettingsHelper.getSaveDirectory() + "/incoming");
                             mLogger.log("recording incoming call");
                         }

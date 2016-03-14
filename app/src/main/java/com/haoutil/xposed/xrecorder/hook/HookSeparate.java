@@ -139,10 +139,12 @@ public class HookSeparate extends BaseHook {
                 XposedBridge.hookAllMethods(callRecorder, "generateFilename", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!mSettingsHelper.isEnableAutoRecord()) {
+                        ICustomService customService = CustomService.getClient();
+                        if (customService.getPhoneState().equals("INCOMING") && !mSettingsHelper.isEnableRecordIncoming()
+                                || customService.getPhoneState().equals("OUTGOING") && !mSettingsHelper.isEnableRecordOutgoing()) {
                             return;
                         }
-                        ICustomService customService = CustomService.getClient();
+                        callType = customService.getPhoneState();
                         callerName = customService.getCallerName();
                         phoneNumber = customService.getPhoneNumber();
                         changeFileName(param);
@@ -155,11 +157,11 @@ public class HookSeparate extends BaseHook {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         ICustomService customService = CustomService.getClient();
+                        if (customService.getPhoneState().equals("INCOMING") && !mSettingsHelper.isEnableRecordIncoming()
+                                || customService.getPhoneState().equals("OUTGOING") && !mSettingsHelper.isEnableRecordOutgoing()) {
+                            return;
+                        }
                         if (customService.isWaitingForRecording() && (Boolean) param.args[0] && mCallRecordingService != null) {
-                            if (customService.getPhoneState().equals("INCOMING") && !mSettingsHelper.isEnableRecordIncoming()
-                                    || customService.getPhoneState().equals("OUTGOING") && !mSettingsHelper.isEnableRecordOutgoing()) {
-                                return;
-                            }
                             mLogger.log("start recording(delay)");
                             XposedHelpers.callMethod(mCallRecordingService, "transitionToState", Enum.valueOf(Transition, "START_RECORDING"));
                             customService.setWaitingForRecording(false);

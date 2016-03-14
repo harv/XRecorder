@@ -12,6 +12,7 @@ public abstract class BaseHook {
     public SettingsHelper mSettingsHelper;
     public Logger mLogger;
 
+    public String callType;
     public String callerName;
     public String phoneNumber;
 
@@ -32,7 +33,7 @@ public abstract class BaseHook {
         String fileName = mSettingsHelper.getFileFormat();
         if (TextUtils.isEmpty(callerName)) {
             if (mSettingsHelper.isOptimizeDisplayCallerName()) {
-                fileName = fileName.replaceAll("nn((?!pp|yyyy|MM|dd|HH|mm|ss).)*", "");
+                fileName = fileName.replaceAll("nn((?!tt|pp|yyyy|MM|dd|HH|mm|ss).)*", "");
             } else {
                 fileName = "unknown";
             }
@@ -41,6 +42,7 @@ public abstract class BaseHook {
         String[] results = ((String) param.getResult()).split("\\.");
         String[] names = results[0].split("-");
         fileName = fileName
+                .replaceAll("tt", callType)
                 .replaceAll("nn", callerName)
                 .replaceAll("pp", phoneNumber)
                 .replaceAll("yyyy", names[0])
