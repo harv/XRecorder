@@ -6,11 +6,11 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ICustomService;
-import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
+import android.preference.TwoStatePreference;
 import android.text.TextUtils;
 
 import com.android.server.CustomService;
@@ -34,9 +34,9 @@ public class SettingsActivity extends BaseActivity {
     }
 
     public static class PrefsFragment extends PreferenceFragment {
-        private CheckBoxPreference cbEnableAll;
-        private CheckBoxPreference cbEnableOutgoing;
-        private CheckBoxPreference cbEnableIncoming;
+        private TwoStatePreference cbEnableAll;
+        private TwoStatePreference cbEnableOutgoing;
+        private TwoStatePreference cbEnableIncoming;
         private EditTextPreference etFilePath;
         private EditTextPreference etFileFormat;
         private Preference pAppInfo;
@@ -65,7 +65,7 @@ public class SettingsActivity extends BaseActivity {
             }
             isSeparateRecorderExist = packageExists("com.sonymobile.callrecording");
 
-            cbEnableAll = (CheckBoxPreference) findPreference("pref_enable_auto_call_recording");
+            cbEnableAll = (TwoStatePreference) findPreference("pref_enable_auto_call_recording");
             cbEnableAll.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     cbEnableOutgoing.setEnabled((Boolean) newValue);
@@ -74,10 +74,10 @@ public class SettingsActivity extends BaseActivity {
                 }
             });
 
-            cbEnableOutgoing = (CheckBoxPreference) findPreference("pref_enable_outgoing_call_recording");
+            cbEnableOutgoing = (TwoStatePreference) findPreference("pref_enable_outgoing_call_recording");
             cbEnableOutgoing.setEnabled(cbEnableAll.isChecked());
 
-            cbEnableIncoming = (CheckBoxPreference) findPreference("pref_enable_incoming_call_recording");
+            cbEnableIncoming = (TwoStatePreference) findPreference("pref_enable_incoming_call_recording");
             cbEnableIncoming.setEnabled(cbEnableAll.isChecked());
 
             etFilePath = (EditTextPreference) findPreference("pref_file_path");

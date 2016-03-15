@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:key="pref_menu_switcher"
+        android:title="@string/menu_switcher" >
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="pref_enable_auto_call_recording"
+            android:summary="@string/enable_auto_call_recording_sum"
+            android:title="@string/enable_auto_call_recording_title" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="pref_enable_outgoing_call_recording"
+            android:summary="@string/enable_outgoing_call_recording_sum"
+            android:title="@string/enable_outgoing_call_recording_title" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="pref_enable_incoming_call_recording"
+            android:summary="@string/enable_incoming_call_recording_sum"
+            android:title="@string/enable_incoming_call_recording_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="pref_menu_file"
+        android:title="@string/menu_file" >
+        <EditTextPreference
+            android:dialogMessage="@string/file_path_note"
+            android:key="pref_file_path"
+            android:summary="@string/file_path_sum"
+            android:title="@string/file_path_title" />
+        <EditTextPreference
+            android:dialogMessage="@string/file_format_note"
+            android:key="pref_file_format"
+            android:summary="@string/file_format_sum"
+            android:title="@string/file_format_title" />
+        <com.haoutil.xposed.xrecorder.widget.TwoEditTextPreference
+            android:key="pref_file_calltype"
+            android:summary="@string/file_calltype_sum"
+            android:title="@string/file_calltype_title" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="pref_optimize_display_caller_name"
+            android:summary="@string/optimize_display_caller_name_sum"
+            android:title="@string/optimize_display_caller_name_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="pref_menu_about"
+        android:title="@string/menu_about" >
+        <SwitchPreference
+            android:key="pref_enable_logging"
+            android:title="@string/enable_logging_title" />
+        <Preference
+            android:key="pref_app_info"
+            android:title="@string/app_info_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
