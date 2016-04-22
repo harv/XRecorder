@@ -27,6 +27,7 @@ public class CustomService extends ICustomService.Stub {
     private String phoneNumber;
     private boolean setSaveDirectoryable;
     private String phoneState;
+    private boolean existsLiveCall;
 
     public CustomService(Context context) {
         mContext = context;
@@ -170,5 +171,15 @@ public class CustomService extends ICustomService.Stub {
     @Override
     public void setPhoneState(String phoneState) {
         this.phoneState = phoneState;
+    }
+
+    @Override
+    public boolean existsLiveCall() {
+        return existsLiveCall;
+    }
+
+    @Override
+    public void setExistsLiveCall(boolean existsLiveCall) {
+        this.existsLiveCall = existsLiveCall;
     }
 }

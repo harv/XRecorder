@@ -1,6 +1,7 @@
 package com.haoutil.xposed.xrecorder.hook;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.ICustomService;
 
 import com.android.server.CustomService;
@@ -66,6 +67,18 @@ public class HookSeparate extends BaseHook {
                         }
                     }
                 });
+                mLogger.log("hook com.android.incallui.CallList...");
+                final Class<?> callList = XposedHelpers.findClass("com.android.incallui.CallList", loadPackageParam.classLoader);
+                final String existsLiveCallMethod = Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT ? "existsLiveCall" : "hasLiveCall";
+                XposedBridge.hookAllMethods(callList, "updateCallInMap", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if ((boolean) param.getResult()) {
+                            boolean existsLiveCall = (boolean) XposedHelpers.callMethod(param.thisObject, existsLiveCallMethod);
+                            CustomService.getClient().setExistsLiveCall(existsLiveCall);
+                        }
+                    }
+                });
                 break;
             case "com.sonymobile.callrecording":
                 mLogger.log("hook com.sonymobile.callrecording.CallRecordingService...");
@@ -109,9 +122,17 @@ public class HookSeparate extends BaseHook {
                                             || customService.getPhoneState().equals("OUTGOING") && !mSettingsHelper.isEnableRecordOutgoing()) {
                                         return;
                                     }
+                                    if (!customService.existsLiveCall()) {
+                                        // don't start recording if no call alive
+                                        return;
+                                    }
                                     mLogger.log("start recording");
                                     XposedHelpers.callMethod(param.thisObject, "transitionToState", Enum.valueOf(Transition, "START_RECORDING"));
                                 } else if (Enum.valueOf(State, "RECORDING") == mState) {
+                                    if (customService.existsLiveCall()) {
+                                        // don't stop recording until all(primary and secondary) calls ended
+                                        return;
+                                    }
                                     mLogger.log("end recording");
                                     XposedHelpers.callMethod(param.thisObject, "transitionToState", Enum.valueOf(Transition, "STOP_RECORDING"));
                                 } else if (Enum.valueOf(State, "OFF") == mState) {

@@ -22,4 +22,7 @@ interface ICustomService {
 
     String getPhoneState();
     void setPhoneState(String phoneState);
+
+    boolean existsLiveCall();
+    void setExistsLiveCall(boolean existsLiveCall);
 }
