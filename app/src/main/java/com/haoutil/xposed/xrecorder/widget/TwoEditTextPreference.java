@@ -1,10 +1,13 @@
 package com.haoutil.xposed.xrecorder.widget;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.haoutil.xposed.xrecorder.R;
@@ -42,6 +45,16 @@ public class TwoEditTextPreference extends DialogPreference {
 
         if (positiveResult) {
             persistString(et_incoming.getText() + ":" + et_outgoing.getText());
+        }
+    }
+
+    @Override
+    protected void showDialog(Bundle state) {
+        super.showDialog(state);
+
+        Window window = getDialog().getWindow();
+        if (window != null) {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
     }
 }
