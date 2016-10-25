@@ -15,9 +15,10 @@ import de.robv.android.xposed.XposedHelpers;
  * register a custom service as a system service for sharing data
  */
 public class CustomService extends ICustomService.Stub {
-    private static final String SERVICE_NAME = "xrecorder";
-    private static Context mContext;
-    private static CustomService mCustomService;
+    private static final String SERVICE_NAME = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? "user.xrecorder" : "xrecorder";
+
+    private Context mContext;
+    private CustomService mCustomService;
     private static ICustomService mClient;
 
     private boolean waitingForRecording;
@@ -29,16 +30,12 @@ public class CustomService extends ICustomService.Stub {
     private String phoneState;
     private boolean existsLiveCall;
 
-    public CustomService(Context context) {
-        mContext = context;
-    }
-
     public static ICustomService getClient() {
         if (mClient == null) {
             try {
                 Class<?> ServiceManager = Class.forName("android.os.ServiceManager");
                 Method getService = ServiceManager.getDeclaredMethod("getService", String.class);
-                mClient = ICustomService.Stub.asInterface((IBinder) getService.invoke(null, getServiceName()));
+                mClient = ICustomService.Stub.asInterface((IBinder) getService.invoke(null, SERVICE_NAME));
             } catch (Throwable t) {
                 mClient = null;
             }
@@ -47,11 +44,7 @@ public class CustomService extends ICustomService.Stub {
         return mClient;
     }
 
-    public static String getServiceName() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? "user." + SERVICE_NAME : SERVICE_NAME;
-    }
-
-    public static void register(final ClassLoader classLoader) {
+    public void register(final ClassLoader classLoader) {
         Class<?> ActivityManagerService = XposedHelpers.findClass("com.android.server.am.ActivityManagerService", classLoader);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             XposedBridge.hookAllConstructors(ActivityManagerService, new XC_MethodHook() {
@@ -77,15 +70,16 @@ public class CustomService extends ICustomService.Stub {
         });
     }
 
-    private static void register(final ClassLoader classLoader, Context context) {
-        mCustomService = new CustomService(context);
+    private void register(final ClassLoader classLoader, Context context) {
+        mContext = context;
+        mCustomService = new CustomService();
 
         Class<?> ServiceManager = XposedHelpers.findClass("android.os.ServiceManager", classLoader);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             XposedHelpers.callStaticMethod(
                     ServiceManager,
                     "addService",
-                    getServiceName(),
+                    SERVICE_NAME,
                     mCustomService,
                     true
             );
@@ -93,7 +87,7 @@ public class CustomService extends ICustomService.Stub {
             XposedHelpers.callStaticMethod(
                     ServiceManager,
                     "addService",
-                    getServiceName(),
+                    SERVICE_NAME,
                     mCustomService
             );
         }

@@ -16,29 +16,31 @@ import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
 public class XposedMod implements IXposedHookLoadPackage, IXposedHookZygoteInit, IXposedHookInitPackageResources {
-    private BaseHook hookBuiltin;
-    private BaseHook hookSeparate;
+    private BaseHook mHookBuiltin;
+    private BaseHook mHookSeparate;
+    private CustomService mCustomService;
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
         SettingsHelper mSettingsHelper = new SettingsHelper();
         Logger mLogger = new Logger(mSettingsHelper);
-        hookBuiltin = new HookBuiltin(mSettingsHelper, mLogger);
-        hookSeparate = new HookSeparate(mSettingsHelper, mLogger);
+        mHookBuiltin = new HookBuiltin(mSettingsHelper, mLogger);
+        mHookSeparate = new HookSeparate(mSettingsHelper, mLogger);
+        mCustomService = new CustomService();
     }
 
     @Override
     public void handleLoadPackage(LoadPackageParam loadPackageParam) throws Throwable {
         switch (loadPackageParam.packageName) {
             case "android":
-                CustomService.register(loadPackageParam.classLoader);
+                mCustomService.register(loadPackageParam.classLoader);
                 break;
             case "com.android.phone":
-                hookBuiltin.hook(loadPackageParam);
+                mHookBuiltin.hook(loadPackageParam);
                 break;
             case "com.android.incallui":
             case "com.sonymobile.callrecording":
-                hookSeparate.hook(loadPackageParam);
+                mHookSeparate.hook(loadPackageParam);
                 break;
         }
     }
