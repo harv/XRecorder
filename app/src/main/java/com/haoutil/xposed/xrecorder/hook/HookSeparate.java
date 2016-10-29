@@ -1,7 +1,6 @@
 package com.haoutil.xposed.xrecorder.hook;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Handler;
 import android.os.ICustomService;
 import android.os.Message;
@@ -64,12 +63,11 @@ public class HookSeparate extends BaseHook {
                 });
                 mLogger.log("hook com.android.incallui.CallList...");
                 final Class<?> callList = XposedHelpers.findClass("com.android.incallui.CallList", loadPackageParam.classLoader);
-                final String existsLiveCallMethod = Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT ? "existsLiveCall" : "hasLiveCall";
                 XposedBridge.hookAllMethods(callList, "updateCallInMap", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if ((boolean) param.getResult()) {
-                            boolean existsLiveCall = (boolean) XposedHelpers.callMethod(param.thisObject, existsLiveCallMethod);
+                            boolean existsLiveCall = XposedHelpers.callMethod(param.thisObject, "getActiveOrBackgroundCall") != null;
                             CustomService.getClient().setExistsLiveCall(existsLiveCall);
                         }
                     }
@@ -119,6 +117,10 @@ public class HookSeparate extends BaseHook {
                                     }
                                     if (!customService.existsLiveCall()) {
                                         // don't start recording if no call alive
+                                        // but try again after 500ms,
+                                        // because the call state may be changed delayed
+                                        mLogger.log("no active calls, skip start recording");
+                                        mHandler.sendEmptyMessageDelayed(0, 500);
                                         return;
                                     }
                                     mLogger.log("start recording");
@@ -127,8 +129,9 @@ public class HookSeparate extends BaseHook {
                                     if (customService.existsLiveCall()) {
                                         // don't stop recording until all(primary and secondary) calls ended
                                         // but try again after 500ms,
-                                        // because the call state may be changed delayed(end call by pressing a button on headset)
-                                        mHandler.sendEmptyMessageDelayed(0, 500);
+                                        // because the call state may be changed delayed
+                                        mLogger.log("active calls exist, skip stop recording");
+                                        mHandler.sendEmptyMessageDelayed(1, 500);
                                         return;
                                     }
                                     mLogger.log("end recording");
@@ -182,7 +185,7 @@ public class HookSeparate extends BaseHook {
                             return;
                         }
                         if (customService.isWaitingForRecording() && (Boolean) param.args[0] && mCallRecordingService != null) {
-                            mLogger.log("start recording(delay)");
+                            mLogger.log("start recording(initial)");
                             XposedHelpers.callMethod(mCallRecordingService, "transitionToState", Enum.valueOf(Transition, "START_RECORDING"));
                             customService.setWaitingForRecording(false);
                         }
@@ -206,12 +209,25 @@ public class HookSeparate extends BaseHook {
         @Override
         public void handleMessage(Message msg) {
             try {
-                if (CustomService.getClient().existsLiveCall()) {
-                    // don't stop recording until all(primary and secondary) calls ended
-                    return;
+                ICustomService customService = CustomService.getClient();
+                switch (msg.what) {
+                    case 0:
+                        if (!customService.existsLiveCall()) {
+                            // don't stop recording until all(primary and secondary) calls ended
+                            return;
+                        }
+                        mLogger.log("start recording(delay)");
+                        XposedHelpers.callMethod(mCallRecordingService, "transitionToState", Enum.valueOf(Transition, "START_RECORDING"));
+                        break;
+                    case 1:
+                        if (customService.existsLiveCall()) {
+                            // don't stop recording until all(primary and secondary) calls ended
+                            return;
+                        }
+                        mLogger.log("end recording(delay)");
+                        XposedHelpers.callMethod(mCallRecordingService, "transitionToState", Enum.valueOf(Transition, "STOP_RECORDING"));
+                        break;
                 }
-                mLogger.log("end recording(delay)");
-                XposedHelpers.callMethod(mCallRecordingService, "transitionToState", Enum.valueOf(Transition, "STOP_RECORDING"));
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
