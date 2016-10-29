@@ -2,7 +2,10 @@ package com.haoutil.xposed.xrecorder.hook;
 
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
 import android.os.ICustomService;
+import android.os.Message;
+import android.os.RemoteException;
 
 import com.android.server.CustomService;
 import com.haoutil.xposed.xrecorder.util.Logger;
@@ -14,16 +17,14 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class HookSeparate extends BaseHook {
-    private Class<? extends Enum> InCallState;
-
     private Object mCallRecordingService;
-    private Class<? extends Enum> State;
-    private Class<? extends Enum> Transition;
+    private MyHandler mHandler;
 
     public HookSeparate(SettingsHelper mSettingsHelper, Logger mLogger) {
         super(mSettingsHelper, mLogger);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void hook(final XC_LoadPackage.LoadPackageParam loadPackageParam) {
         switch (loadPackageParam.packageName) {
@@ -49,14 +50,8 @@ public class HookSeparate extends BaseHook {
                     }
                 });
                 mLogger.log("hook com.android.incallui.CallCardPresenter...");
+                final Class<? extends Enum> InCallState = (Class<? extends Enum>) XposedHelpers.findClass("com.android.incallui.InCallPresenter$InCallState", loadPackageParam.classLoader);
                 final Class<?> callCardPresenter = XposedHelpers.findClass("com.android.incallui.CallCardPresenter", loadPackageParam.classLoader);
-                XposedBridge.hookAllMethods(callCardPresenter, "init", new XC_MethodHook() {
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        InCallState = (Class<? extends Enum>) XposedHelpers.findClass("com.android.incallui.InCallPresenter$InCallState", loadPackageParam.classLoader);
-                    }
-                });
                 XposedBridge.hookAllMethods(callCardPresenter, "onStateChange", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -82,14 +77,14 @@ public class HookSeparate extends BaseHook {
                 break;
             case "com.sonymobile.callrecording":
                 mLogger.log("hook com.sonymobile.callrecording.CallRecordingService...");
+                final Class<? extends Enum> State = (Class<? extends Enum>) XposedHelpers.findClass("com.sonymobile.callrecording.CallRecordingStateMachine$State", loadPackageParam.classLoader);
+                final Class<? extends Enum> Transition = (Class<? extends Enum>) XposedHelpers.findClass("com.sonymobile.callrecording.CallRecordingStateMachine$Transition", loadPackageParam.classLoader);
                 Class<?> callRecordingService = XposedHelpers.findClass("com.sonymobile.callrecording.CallRecordingService", loadPackageParam.classLoader);
                 XposedBridge.hookAllConstructors(callRecordingService, new XC_MethodHook() {
-                    @SuppressWarnings("unchecked")
                     @Override
                     protected void afterHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
                         mCallRecordingService = param.thisObject;
-                        State = (Class<? extends Enum>) XposedHelpers.findClass("com.sonymobile.callrecording.CallRecordingStateMachine$State", loadPackageParam.classLoader);
-                        Transition = (Class<? extends Enum>) XposedHelpers.findClass("com.sonymobile.callrecording.CallRecordingStateMachine$Transition", loadPackageParam.classLoader);
+                        mHandler = new MyHandler(mLogger, mCallRecordingService, Transition);
                     }
                 });
                 XposedBridge.hookAllMethods(callRecordingService, "onStartCommand", new XC_MethodHook() {
@@ -131,6 +126,9 @@ public class HookSeparate extends BaseHook {
                                 } else if (Enum.valueOf(State, "RECORDING") == mState) {
                                     if (customService.existsLiveCall()) {
                                         // don't stop recording until all(primary and secondary) calls ended
+                                        // but try again after 500ms,
+                                        // because the call state may be changed delayed(end call by pressing a button on headset)
+                                        mHandler.sendEmptyMessageDelayed(0, 500);
                                         return;
                                     }
                                     mLogger.log("end recording");
@@ -191,6 +189,32 @@ public class HookSeparate extends BaseHook {
                     }
                 });
                 break;
+        }
+    }
+
+    private static class MyHandler extends Handler {
+        private Logger mLogger;
+        private Object mCallRecordingService;
+        private Class<? extends Enum> Transition;
+
+        MyHandler(Logger mLogger, Object mCallRecordingService, Class<? extends Enum> Transition) {
+            this.mLogger = mLogger;
+            this.mCallRecordingService = mCallRecordingService;
+            this.Transition = Transition;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            try {
+                if (CustomService.getClient().existsLiveCall()) {
+                    // don't stop recording until all(primary and secondary) calls ended
+                    return;
+                }
+                mLogger.log("end recording(delay)");
+                XposedHelpers.callMethod(mCallRecordingService, "transitionToState", Enum.valueOf(Transition, "STOP_RECORDING"));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
