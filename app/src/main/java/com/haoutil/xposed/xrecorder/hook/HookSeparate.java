@@ -111,8 +111,8 @@ public class HookSeparate extends BaseHook {
                                 }
                                 Object mState = XposedHelpers.getObjectField(param.thisObject, "mState");
                                 if (Enum.valueOf(State, "IDLE") == mState) {
-                                    if (customService.getPhoneState().equals("INCOMING") && !mSettingsHelper.isEnableRecordIncoming()
-                                            || customService.getPhoneState().equals("OUTGOING") && !mSettingsHelper.isEnableRecordOutgoing()) {
+                                    if ("INCOMING".equals(customService.getPhoneState()) && !mSettingsHelper.isEnableRecordIncoming()
+                                            || "OUTGOING".equals(customService.getPhoneState()) && !mSettingsHelper.isEnableRecordOutgoing()) {
                                         return;
                                     }
                                     if (!customService.existsLiveCall()) {
@@ -162,8 +162,8 @@ public class HookSeparate extends BaseHook {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         ICustomService customService = CustomService.getClient();
-                        if (customService.getPhoneState().equals("INCOMING") && !mSettingsHelper.isEnableRecordIncoming()
-                                || customService.getPhoneState().equals("OUTGOING") && !mSettingsHelper.isEnableRecordOutgoing()) {
+                        if ("INCOMING".equals(customService.getPhoneState()) && !mSettingsHelper.isEnableRecordIncoming()
+                                || "OUTGOING".equals(customService.getPhoneState()) && !mSettingsHelper.isEnableRecordOutgoing()) {
                             return;
                         }
                         String[] value = mSettingsHelper.getFileCallType();
@@ -180,8 +180,8 @@ public class HookSeparate extends BaseHook {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         ICustomService customService = CustomService.getClient();
-                        if (customService.getPhoneState().equals("INCOMING") && !mSettingsHelper.isEnableRecordIncoming()
-                                || customService.getPhoneState().equals("OUTGOING") && !mSettingsHelper.isEnableRecordOutgoing()) {
+                        if ("INCOMING".equals(customService.getPhoneState()) && !mSettingsHelper.isEnableRecordIncoming()
+                                || "OUTGOING".equals(customService.getPhoneState()) && !mSettingsHelper.isEnableRecordOutgoing()) {
                             return;
                         }
                         if (customService.isWaitingForRecording() && (Boolean) param.args[0] && mCallRecordingService != null) {
