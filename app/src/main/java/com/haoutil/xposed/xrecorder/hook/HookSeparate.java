@@ -117,10 +117,10 @@ public class HookSeparate extends BaseHook {
                                     }
                                     if (!customService.existsLiveCall()) {
                                         // don't start recording if no call alive
-                                        // but try again after 500ms,
+                                        // but try again after 1s,
                                         // because the call state may be changed delayed
                                         mLogger.log("no active calls, skip start recording");
-                                        mHandler.sendEmptyMessageDelayed(0, 500);
+                                        mHandler.sendEmptyMessageDelayed(0, 1000);
                                         return;
                                     }
                                     mLogger.log("start recording");
@@ -128,10 +128,10 @@ public class HookSeparate extends BaseHook {
                                 } else if (Enum.valueOf(State, "RECORDING") == mState) {
                                     if (customService.existsLiveCall()) {
                                         // don't stop recording until all(primary and secondary) calls ended
-                                        // but try again after 500ms,
+                                        // but try again after 1s,
                                         // because the call state may be changed delayed
                                         mLogger.log("active calls exist, skip stop recording");
-                                        mHandler.sendEmptyMessageDelayed(1, 500);
+                                        mHandler.sendEmptyMessageDelayed(1, 1000);
                                         return;
                                     }
                                     mLogger.log("end recording");
